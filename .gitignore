@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/PmeConsoleFramework/bin/Debug
+/PmeConsoleFramework/obj/Debug
+/ProcessModelingEnvironment/.vs/ProcessModelingEnvironment/v16
+/ProcessModelingEnvironment/packages/Newtonsoft.Json.13.0.1/lib
+/ProcessModelingEnvironment/packages/Newtonsoft.Json.13.0.1

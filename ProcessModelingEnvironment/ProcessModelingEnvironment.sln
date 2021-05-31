@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PmeConsoleFramework", "..\PmeConsoleFramework\PmeConsoleFramework.csproj", "{31945B5B-180A-4604-AB6E-FABEB6B9AFBD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestData", "TestData", "{3BCE21E6-42F2-4672-8874-43ED939E134E}"
+	ProjectSection(SolutionItems) = preProject
+		..\TestData\project1.cfg = ..\TestData\project1.cfg
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{31945B5B-180A-4604-AB6E-FABEB6B9AFBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31945B5B-180A-4604-AB6E-FABEB6B9AFBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31945B5B-180A-4604-AB6E-FABEB6B9AFBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31945B5B-180A-4604-AB6E-FABEB6B9AFBD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8D77209E-F39E-4870-BE7C-E1BEF81922BF}
+	EndGlobalSection
+EndGlobal
