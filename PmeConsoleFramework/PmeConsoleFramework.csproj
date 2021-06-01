@@ -46,8 +46,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cell.cs" />
+    <Compile Include="CellarAutomaton.cs" />
+    <Compile Include="CodeGenerator.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="Neighbors.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StateConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
