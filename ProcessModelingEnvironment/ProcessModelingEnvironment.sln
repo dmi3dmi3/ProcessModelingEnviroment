@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31025.194
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1525
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PmeConsoleFramework", "..\PmeConsoleFramework\PmeConsoleFramework.csproj", "{31945B5B-180A-4604-AB6E-FABEB6B9AFBD}"
 EndProject
@@ -9,6 +9,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestData", "TestData", "{3B
 	ProjectSection(SolutionItems) = preProject
 		..\TestData\project1.cfg = ..\TestData\project1.cfg
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CellarAutomatonLib", "..\CellarAutomatonLib\CellarAutomatonLib.csproj", "{327E180D-8949-4399-B20B-CD2596D83E93}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PmeGeneratingConsole", "..\PmeGeneratingConsole\PmeGeneratingConsole.csproj", "{6F42E2ED-2438-48C5-AF0C-B1B8008A0206}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PmeVisualizationWpf", "..\PmeVisualizationWpf\PmeVisualizationWpf.csproj", "{739EA84D-07F2-461A-9488-D58EF99C579D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +26,18 @@ Global
 		{31945B5B-180A-4604-AB6E-FABEB6B9AFBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31945B5B-180A-4604-AB6E-FABEB6B9AFBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31945B5B-180A-4604-AB6E-FABEB6B9AFBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{327E180D-8949-4399-B20B-CD2596D83E93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{327E180D-8949-4399-B20B-CD2596D83E93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{327E180D-8949-4399-B20B-CD2596D83E93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{327E180D-8949-4399-B20B-CD2596D83E93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F42E2ED-2438-48C5-AF0C-B1B8008A0206}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F42E2ED-2438-48C5-AF0C-B1B8008A0206}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F42E2ED-2438-48C5-AF0C-B1B8008A0206}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F42E2ED-2438-48C5-AF0C-B1B8008A0206}.Release|Any CPU.Build.0 = Release|Any CPU
+		{739EA84D-07F2-461A-9488-D58EF99C579D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{739EA84D-07F2-461A-9488-D58EF99C579D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{739EA84D-07F2-461A-9488-D58EF99C579D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{739EA84D-07F2-461A-9488-D58EF99C579D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

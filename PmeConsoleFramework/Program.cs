@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using CellarAutomatonLib;
 using System;
 using System.IO;
 using System.Text;
@@ -22,7 +22,7 @@ namespace PmeConsoleFramework
             var text = File.ReadAllText(Path.Combine(
                 Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName,
                 @"TestData\project2.cfg"));
-            var config = JsonConvert.DeserializeObject<Config>(text);
+            var config = Config.Deserialize(text);
             var ca = new CellarAutomaton(config);
 
             var width = Math.Max(config.Width, 8) * 2 + 1;
