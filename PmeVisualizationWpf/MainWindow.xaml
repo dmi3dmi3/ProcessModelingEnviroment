@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PmeVisualizationWpf"
+        xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.DataContext>
@@ -29,7 +30,36 @@
             <Button Margin="3" Content="Previous" Command="{Binding PreviousCommand}"/>
             <Button Margin="3" Content="Play" Command="{Binding PlayCommand}"/>
             <Label Content="{Binding Step}"/>
+
+            <ScrollViewer MaxHeight="800">
+                <ItemsControl 
+                    Margin="10"
+                    ItemsSource="{Binding GraphsItemSource}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <oxy:Plot 
+                                Title="{Binding Name}" 
+                                LegendTitleColor="{Binding Color}"
+                                Height="240" Width="420" 
+                                VerticalAlignment="Top"
+                                LegendFontSize="9"
+                                LegendPosition="LeftTop">
+                                <oxy:Plot.Axes>
+                                    <oxy:LinearAxis Title="Доля клеток" FontSize="10"/>
+                                    <oxy:LinearAxis Position="Bottom" Title="Шаг" FontSize="12"/>
+                                </oxy:Plot.Axes>
+                                <oxy:Plot.Series>
+                                    <oxy:LineSeries 
+                                        ItemsSource="{Binding Values}" 
+                                        Color="{Binding Color}"/>
+                                </oxy:Plot.Series>
+                            </oxy:Plot>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
         </StackPanel>
+
         <StackPanel Grid.Row="1" Grid.RowSpan="2" Grid.Column="1">
             <ItemsControl  
                 ItemsSource="{Binding CanvasItemsSource}" 

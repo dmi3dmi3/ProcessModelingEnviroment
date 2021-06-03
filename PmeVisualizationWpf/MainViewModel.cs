@@ -1,14 +1,14 @@
-﻿using System;
+﻿using CellarAutomatonLib;
+using Microsoft.Win32;
+using OxyPlot;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Security.Policy;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Windows.Threading;
-using CellarAutomatonLib;
-using Microsoft.Win32;
 
 namespace PmeVisualizationWpf
 {
@@ -17,19 +17,27 @@ namespace PmeVisualizationWpf
         public MainViewModel()
         {
             CanvasItemsSource = new ObservableCollection<Shape>();
+            GraphsItemSource = new ObservableCollection<GraphViewModel>();
             CanvasHeight = 1000;
             CanvasWidth = 1000;
+            _brushes = new[]{
+                Brushes.Gray,
+                Brushes.Blue,
+                Brushes.Red,
+                Brushes.Green,
+                Brushes.Black,
+                Brushes.Olive,
+            };
+            _colors = _brushes
+                .Select(_ => _.Color)
+                .ToArray();
+
         }
 
-        private readonly SolidColorBrush[] _colors = {
-            Brushes.White,
-            Brushes.Blue,
-            Brushes.Red,
-            Brushes.Green,
-            Brushes.Black,
-            Brushes.BlueViolet,
-            Brushes.Orange
-        };
+        private readonly SolidColorBrush[] _brushes;
+
+        private readonly Color[] _colors;
+
 
         private Config _config;
         private int[,,] _caList;
@@ -50,9 +58,7 @@ namespace PmeVisualizationWpf
                 foreach (var line in File.ReadLines(caLogPath))
                 {
                     foreach (var item in line.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
                         _caList[j, i++, n] = int.Parse(item);
-                    }
 
                     i = 0;
                     j++;
@@ -67,9 +73,7 @@ namespace PmeVisualizationWpf
                 var cellWidth = CanvasWidth / _config.Width;
                 var cellHeight = CanvasHeight / _config.Height;
                 for (var h = 0; h < _config.Height; h++)
-                {
                     for (var k = 0; k < _config.Width; k++)
-                    {
                         CanvasItemsSource.Add(new Rectangle
                         {
                             Width = cellWidth,
@@ -78,7 +82,16 @@ namespace PmeVisualizationWpf
                             Fill = Brushes.White
                         });
 
-                    }
+                var stateGraphsPath = _config.Paths[Config.StateGraphsName];
+                var gd = GraphsDescriber.Deserialize(File.ReadAllText(stateGraphsPath));
+                foreach (var state in gd.StateGraphs.Keys)
+                {
+                    GraphsItemSource.Add(new GraphViewModel
+                    {
+                        Name = _config.States[state].Name,
+                        Color = _colors[state],
+                        Values = gd.StateGraphs[state].Select((d, c) => new DataPoint(c, d)).ToList()
+                    });
                 }
 
                 Step = 0;
@@ -119,15 +132,9 @@ namespace PmeVisualizationWpf
             var t = Application.Current.Dispatcher.InvokeAsync(delegate
             {
                 for (var h = 0; h < _config.Height; h++)
-                {
                     for (var k = 0; k < _config.Width; k++)
-                    {
-                        if (CanvasItemsSource[_config.Width * h + k].Fill != _colors[_caList[h, k, n]])
-                        {
-                            CanvasItemsSource[_config.Width * h + k].Fill = _colors[_caList[h, k, n]];
-                        }
-                    }
-                }
+                        if (CanvasItemsSource[_config.Width * h + k].Fill != _brushes[_caList[h, k, n]])
+                            CanvasItemsSource[_config.Width * h + k].Fill = _brushes[_caList[h, k, n]];
             });
             t.Wait();
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -16,6 +17,7 @@ namespace PmeVisualizationWpf
         private ICommand _playCommand;
         private ObservableCollection<Shape> _canvasItemsSource;
         private int _step;
+        private ObservableCollection<GraphViewModel> _graphsItemSource;
         protected virtual void OnPathSelect(object obj = null) { }
         protected virtual void OnNext(object obj = null) { }
         protected virtual void OnPrevious(object obj = null) { }
@@ -33,7 +35,6 @@ namespace PmeVisualizationWpf
                 OnPropertyChanged();
             }
         }
-
         public string ProjectPath
         {
             get => _projectPath;
@@ -42,6 +43,17 @@ namespace PmeVisualizationWpf
                 if (value == _projectPath)
                     return;
                 _projectPath = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<GraphViewModel> GraphsItemSource
+        {
+            get => _graphsItemSource;
+            set
+            {
+                if (Equals(value, _graphsItemSource)) return;
+                _graphsItemSource = value;
                 OnPropertyChanged();
             }
         }

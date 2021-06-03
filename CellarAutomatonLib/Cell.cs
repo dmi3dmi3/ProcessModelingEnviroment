@@ -7,8 +7,8 @@ namespace CellarAutomatonLib
     public class Cell
     {
         public int State { get; set; }
-        public Dictionary<string, int> Memory { get; set; }
-        public Cell(int state, Dictionary<string, int> memory = null)
+        public Dictionary<string, double> Memory { get; set; }
+        public Cell(int state, Dictionary<string, double> memory = null)
         {
             State = state;
             Memory = memory;
@@ -17,7 +17,7 @@ namespace CellarAutomatonLib
         public Cell GetCopy()
         {
             return Memory != null
-                ? new Cell(State, new Dictionary<string, int>(Memory))
+                ? new Cell(State, new Dictionary<string, double>(Memory))
                 : new Cell(State);
         }
     }

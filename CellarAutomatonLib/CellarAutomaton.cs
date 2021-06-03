@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, bool>;
+
 
 namespace CellarAutomatonLib
 {
@@ -9,7 +12,7 @@ namespace CellarAutomatonLib
     {
         public Config Config { get; set; }
         public Cell[,] Board { get; set; }
-        public Dictionary<int, Dictionary<int, Func<Neighbors, Dictionary<string, int>, Dictionary<string, int>, int, bool>>> StateMachine { get; set; }
+        public Dictionary<int, Dictionary<int, StateMachineType>> StateMachine { get; set; }
         public int Step { get; private set; }
         private Random _random;
         private string[] _headers;
@@ -63,7 +66,7 @@ namespace CellarAutomatonLib
             for (var i = 0; i < Board.GetLength(0); i++)
             for (var j = 0; j < Board.GetLength(1); j++)
             {
-                Board[i, j] = new Cell(statesDisp[_random.Next(100)], Config.Memory != null ? new Dictionary<string, int>(Config.Memory) : null);
+                Board[i, j] = new Cell(statesDisp[_random.Next(100)], Config.Memory != null ? new Dictionary<string, double>(Config.Memory) : null);
             }
         }
 
@@ -71,6 +74,7 @@ namespace CellarAutomatonLib
         {
             Step++;
             var result = new Cell[Board.GetLength(0), Board.GetLength(1)];
+          
             for (var i = 0; i < Board.GetLength(0); i++)
             for (var j = 0; j < Board.GetLength(1); j++)
             {
@@ -103,18 +107,21 @@ namespace CellarAutomatonLib
                 for (var j = 0; j < Config.Width; j++)
                 {
                     sb.Append(Board[i, j].State);
-                    //foreach (var header in _headers)
-                    //{
-                    //    sb.Append(',');
-                    //    sb.Append(Board[i, j].Memory[header]);
-                    //}
-
                     sb.Append(',');
                 }
 
                 sb.Append(Environment.NewLine);
             }
             return sb.ToString();
+        }
+
+        public Dictionary<int, int> GetStatesCount()
+        {
+            var result = Config.States.ToDictionary(_ => _.Key, _ => 0);
+            for (int i = 0; i < Config.Height; i++)
+            for (int j = 0; j < Config.Width; j++)
+                result[Board[i, j].State]++;
+            return result;
         }
 
         private readonly List<(int, int)> _shiftList = new List<(int, int)>

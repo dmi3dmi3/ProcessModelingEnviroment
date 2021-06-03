@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CSharp;
+using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, bool>;
 
 namespace CellarAutomatonLib
 {
     public static class CodeGenerator
     {
-        public static Dictionary<int, Dictionary<int, Func<Neighbors, Dictionary<string, int>, Dictionary<string, int>, int, bool>>> GetStateMachine(
+        public static Dictionary<int, Dictionary<int, StateMachineType>> GetStateMachine(
             Dictionary<int, Dictionary<int, string>> input)
         {
             CodeDomProvider cpd = new CSharpCodeProvider();
@@ -41,6 +42,10 @@ namespace CellarAutomatonLib
     public static class GeneratedCode 
     {{
     private static Random random = new Random();
+    private static double RandomPercent()
+    {{
+        return random.Next(100000) / 1000d;
+    }}
 
 {string.Join(Environment.NewLine, methodsCode)}
     }}
@@ -50,16 +55,14 @@ namespace CellarAutomatonLib
             var assembly = cr.CompiledAssembly;
             var type = assembly.GetType("CellarAutomatonLib.GeneratedCode");
             var methods = type.GetMethods();
-            var result = new Dictionary<int, Dictionary<int, Func<Neighbors, Dictionary<string, int>, Dictionary<string, int>, int, bool>>>();
+            var result = new Dictionary<int, Dictionary<int, StateMachineType>>();
             foreach (var from in input)
             {
-                result.Add(from.Key, new Dictionary<int, Func<Neighbors, Dictionary<string, int>, Dictionary<string, int>, int, bool>>());
+                result.Add(from.Key, new Dictionary<int, StateMachineType>());
                 foreach (var to in from.Value.Select(_ => _.Key))
                 {
                     var t = methods.First(_ => _.Name == $"From{from.Key}To{to}");
-                    result[from.Key].Add(to,
-                        (Func<Neighbors, Dictionary<string, int>, Dictionary<string, int>, int, bool>)
-                        Delegate.CreateDelegate(typeof(Func<Neighbors, Dictionary<string, int>, Dictionary<string, int>, int, bool>), t));
+                    result[from.Key].Add(to, (StateMachineType) Delegate.CreateDelegate(typeof(StateMachineType), t));
                 }
             }
 
@@ -68,7 +71,7 @@ namespace CellarAutomatonLib
 
         static string GetMethod(int from, int to, string code) =>
             $@"
-        public static bool From{from}To{to}(Neighbors neighbors, Dictionary<string, int> memory, Dictionary<string, int> global, int n)
+        public static bool From{from}To{to}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n)
         {{
             {code}
         }}";
