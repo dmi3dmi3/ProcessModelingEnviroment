@@ -17,7 +17,11 @@ namespace CellarAutomatonLib
         public Dictionary<string, double> Global { get; set; }
         public Dictionary<string, string> Paths { get; set; }
 
+
         public static Config Deserialize(string str) => JsonConvert.DeserializeObject<Config>(str);
-        public string Serialize() => JsonConvert.SerializeObject(this, Formatting.Indented);
+        public string Serialize() => JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore
+        });
     }
 }

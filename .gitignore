@@ -15,3 +15,5 @@
 /PmeVisualizationWpf/obj/Debug
 /ProcessModelingEnvironment/.vs/ProcessModelingEnvironment/v15
 /ProcessModelingEnvironment/packages
+/.vs/ProcessModelingEnvironment
+/packages

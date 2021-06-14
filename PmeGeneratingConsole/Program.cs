@@ -10,10 +10,34 @@ namespace PmeGeneratingConsole
     {
         static void Main(string[] args)
         {
-            const string projectName = "project2";
-            var configPath = Path.Combine(
-                Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName,
-                @"TestData\" + projectName + ".cfg");
+            const string configPathArg = "-c";
+            const string projectNameArg = "-p";
+            var k = 0;
+            string projectName = null, configPath = null;
+            for (;;)
+            {
+                if (k >= args.Length)
+                    break;
+                switch (args[k])
+                {
+                    case configPathArg:
+                        k++;
+                        configPath = args[k];
+                        k++;
+                        break;
+                    case projectNameArg:
+                        k++;
+                        projectName = args[k];
+                        k++;
+                        break;
+                }
+            }
+
+            if (configPath == null)
+                throw new Exception("Set config path using -c argument");
+            if (projectName == null)
+                throw new Exception("Set project name using -p argument");
+
             var text = File.ReadAllText(configPath);
             var config = Config.Deserialize(text);
             var ca = new CellarAutomaton(config);
@@ -35,6 +59,9 @@ namespace PmeGeneratingConsole
                 config.Paths.Add(Config.StateGraphsName, graphPath);
             File.Create(graphPath).Close();
 
+            var newConfigPath = Path.Combine(Directory.GetParent(configPath).FullName, projectName + ".cfg");
+            File.Create(newConfigPath).Close();
+
             const int writeBufferLen = 100;
             var writeBuffer = new string[writeBufferLen];
             var i = 0;
@@ -54,13 +81,14 @@ namespace PmeGeneratingConsole
                     File.AppendAllText(caLogPath, string.Join("", writeBuffer));
                     i = 0;
                 }
-                Console.SetCursorPosition(0, 0);
+
+                Console.CursorLeft = 0;
                 Console.Write(100d / ca.Config.StepCount * ca.Step);
                 Console.Write('%');
             }
             File.AppendAllText(caLogPath, string.Join("", writeBuffer.Where((s, j) => j <= i)));
             File.WriteAllText(graphPath, new GraphsDescriber { StateGraphs = stateGraphs }.Serialize());
-            File.WriteAllText(configPath, config.Serialize());
+            File.WriteAllText(newConfigPath, config.Serialize());
         }
     }
 }

@@ -138,6 +138,5 @@ namespace PmeVisualizationWpf
             });
             t.Wait();
         }
-
     }
 }
