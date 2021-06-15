@@ -41,6 +41,7 @@ namespace CellarAutomatonLib
 
             var classCode =
                 $@"using System;
+using System.Collections.Generic;
 
 namespace CellarAutomatonLib
 {{
@@ -49,8 +50,8 @@ namespace CellarAutomatonLib
     private static Random random = new Random();
     private static double RandomPercent(int mantissaLen = 3)
     {{
-        double multiplicator = Math.Pow(10, mantissaLen)
-        return random.Next(100 * multiplicator) / 10d * multiplicator;
+        int multiplicator = (int)Math.Pow(10, mantissaLen);
+        return random.Next(100 * multiplicator) / (double)multiplicator;
     }}
 
 {string.Join(Environment.NewLine, methodsCode)}
@@ -147,6 +148,7 @@ namespace CellarAutomatonLib
 
             var classCode =
                 $@"using System;
+using System.Collections.Generic;
 
 namespace CellarAutomatonLib
 {{
@@ -200,6 +202,7 @@ namespace CellarAutomatonLib
 
             var classCode =
                 $@"using System;
+using System.Collections.Generic;
 
 namespace CellarAutomatonLib
 {{

@@ -125,6 +125,7 @@ namespace PmeVisualizationWpf
         {
             if (IsPlaying)
             {
+                IsPlaying = false;
                 cts.Cancel();
                 _calcTask.Wait();
             }
