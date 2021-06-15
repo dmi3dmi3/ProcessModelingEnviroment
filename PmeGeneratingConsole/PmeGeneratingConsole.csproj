@@ -50,8 +50,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CellarAutomatonLibStandard\CellarAutomatonLibStandard.csproj">
+      <Project>{BEBAC2A1-DE28-48D0-B46D-59EFC5842CC3}</Project>
+      <Name>CellarAutomatonLibStandard</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CellarAutomatonLib\CellarAutomatonLib.csproj">
-      <Project>{327e180d-8949-4399-b20b-cd2596d83e93}</Project>
+      <Project>{327E180D-8949-4399-B20B-CD2596D83E93}</Project>
       <Name>CellarAutomatonLib</Name>
     </ProjectReference>
   </ItemGroup>

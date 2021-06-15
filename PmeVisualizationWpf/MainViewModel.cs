@@ -1,14 +1,16 @@
-﻿using CellarAutomatonLib;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using OxyPlot;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using CellarAutomatonLib;
 
 namespace PmeVisualizationWpf
 {
@@ -16,10 +18,11 @@ namespace PmeVisualizationWpf
     {
         public MainViewModel()
         {
+            IsNotProcessing = true;
             CanvasItemsSource = new ObservableCollection<Shape>();
             GraphsItemSource = new ObservableCollection<GraphViewModel>();
-            CanvasHeight = 1000;
-            CanvasWidth = 1000;
+            CanvasHeight = 900;
+            CanvasWidth = 900;
             _brushes = new[]{
                 Brushes.Gray,
                 Brushes.Blue,
@@ -38,7 +41,7 @@ namespace PmeVisualizationWpf
 
         private readonly Color[] _colors;
 
-
+        private MainWindow _mainWindow;
         private Config _config;
         private int[,,] _caList;
         protected override void OnPathSelect(object obj = null)
@@ -70,6 +73,7 @@ namespace PmeVisualizationWpf
                     }
                 }
 
+                CanvasItemsSource.Clear();
                 var cellWidth = CanvasWidth / _config.Width;
                 var cellHeight = CanvasHeight / _config.Height;
                 for (var h = 0; h < _config.Height; h++)
@@ -115,28 +119,57 @@ namespace PmeVisualizationWpf
             Draw(Step);
         }
 
+        private CancellationTokenSource cts = new CancellationTokenSource();
+        private Task _calcTask;
         protected override void OnPlay(object obj = null)
         {
-            Task.Run(() =>
+            if (IsPlaying)
             {
-                while (Step < _config.StepCount)
+                cts.Cancel();
+                _calcTask.Wait();
+            }
+            else
+            {
+                IsPlaying = true;
+                var token = cts.Token;
+                _calcTask = Task.Run(() =>
                 {
-                    Draw(Step++);
-                    Task.Delay(50).Wait();
-                }
-            });
+                    while (Step < _config.StepCount && !token.IsCancellationRequested)
+                    {
+                        Draw(Step++);
+                        Task.Delay(50).Wait();
+                    }
+                }, token);
+            }
+        }
+
+        protected override void OnRestart(object obj = null)
+        {
+            if (IsPlaying)
+                OnPlay();
+            Step = 0;
+            Draw(Step);
         }
 
         private void Draw(int n)
         {
+            IsNotProcessing = false;
             var t = Application.Current.Dispatcher.InvokeAsync(delegate
             {
                 for (var h = 0; h < _config.Height; h++)
                     for (var k = 0; k < _config.Width; k++)
+                    {
                         if (CanvasItemsSource[_config.Width * h + k].Fill != _brushes[_caList[h, k, n]])
                             CanvasItemsSource[_config.Width * h + k].Fill = _brushes[_caList[h, k, n]];
+                    }
             });
             t.Wait();
+            IsNotProcessing = true;
+        }
+
+        public void SetMainWindow(MainWindow mainWindow)
+        {
+            _mainWindow = mainWindow;
         }
     }
 }

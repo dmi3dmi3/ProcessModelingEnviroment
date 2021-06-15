@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestData", "TestData", "{3BCE21E6-42F2-4672-8874-43ED939E134E}"
-	ProjectSection(SolutionItems) = preProject
-		TestData\project1.cfg = TestData\project1.cfg
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CellarAutomatonLib", "CellarAutomatonLib\CellarAutomatonLib.csproj", "{327E180D-8949-4399-B20B-CD2596D83E93}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PmeGeneratingConsole", "PmeGeneratingConsole\PmeGeneratingConsole.csproj", "{6F42E2ED-2438-48C5-AF0C-B1B8008A0206}"

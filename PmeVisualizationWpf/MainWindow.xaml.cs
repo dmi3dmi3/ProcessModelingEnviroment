@@ -10,6 +10,7 @@ namespace PmeVisualizationWpf
         public MainWindow()
         {
             InitializeComponent();
+            ((MainViewModel) DataContext).SetMainWindow(this);
         }
     }
 }

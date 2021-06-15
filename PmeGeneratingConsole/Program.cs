@@ -1,8 +1,8 @@
-﻿using CellarAutomatonLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CellarAutomatonLib;
 
 namespace PmeGeneratingConsole
 {
@@ -42,6 +42,10 @@ namespace PmeGeneratingConsole
             var config = Config.Deserialize(text);
             var ca = new CellarAutomaton(config);
 
+            const int writeBufferLen = 100;
+            var writeBuffer = new string[writeBufferLen];
+            var i = 0;
+
             if (config.Paths == null)
                 config.Paths = new Dictionary<string, string>();
 
@@ -52,20 +56,7 @@ namespace PmeGeneratingConsole
                 config.Paths.Add(Config.CaLogName, caLogPath);
             File.Create(caLogPath).Close();
 
-            var graphPath = Path.Combine(Directory.GetParent(configPath).FullName, projectName + ".sg");
-            if (config.Paths.ContainsKey(Config.StateGraphsName))
-                config.Paths[Config.StateGraphsName] = graphPath;
-            else
-                config.Paths.Add(Config.StateGraphsName, graphPath);
-            File.Create(graphPath).Close();
-
-            var newConfigPath = Path.Combine(Directory.GetParent(configPath).FullName, projectName + ".cfg");
-            File.Create(newConfigPath).Close();
-
-            const int writeBufferLen = 100;
-            var writeBuffer = new string[writeBufferLen];
-            var i = 0;
-
+            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Start");
             ca.Init();
             writeBuffer[i++] = ca.GetSerializedBoard();
             var cellCount = config.Width * config.Height;
@@ -86,9 +77,24 @@ namespace PmeGeneratingConsole
                 Console.Write(100d / ca.Config.StepCount * ca.Step);
                 Console.Write('%');
             }
+
+            var graphPath = Path.Combine(Directory.GetParent(configPath).FullName, projectName + ".sg");
+            if (config.Paths.ContainsKey(Config.StateGraphsName))
+                config.Paths[Config.StateGraphsName] = graphPath;
+            else
+                config.Paths.Add(Config.StateGraphsName, graphPath);
+            File.Create(graphPath).Close();
+
+            var newConfigPath = Path.Combine(Directory.GetParent(configPath).FullName, projectName + ".cfg");
+            File.Create(newConfigPath).Close();
+
             File.AppendAllText(caLogPath, string.Join("", writeBuffer.Where((s, j) => j <= i)));
             File.WriteAllText(graphPath, new GraphsDescriber { StateGraphs = stateGraphs }.Serialize());
             File.WriteAllText(newConfigPath, config.Serialize());
+
+            Console.WriteLine();
+            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Finish");
+
         }
     }
 }
