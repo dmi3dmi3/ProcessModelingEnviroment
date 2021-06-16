@@ -6,6 +6,7 @@
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:pmeVisualizationWpf="clr-namespace:PmeVisualizationWpf"
         mc:Ignorable="d"
+        WindowState="Maximized"
         Title="MainWindow" Height="450" Width="800">
     <Window.DataContext>
         <pmeVisualizationWpf:MainViewModel/>
@@ -72,9 +73,7 @@
                 </ItemsControl>
             </ScrollViewer>
         </StackPanel>
-
-        <StackPanel Grid.Row="1" Grid.RowSpan="2" Grid.Column="1">
-            <ItemsControl 
+        <!--<ItemsControl 
                 ItemsSource="{Binding CanvasItemsSource}" 
                 Name="CanvasItems"
                 MaxWidth="{Binding CanvasWidth}"
@@ -85,7 +84,18 @@
                         <Canvas Name="Canvas"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </StackPanel>
+            </ItemsControl>-->
+            <Canvas 
+                Grid.Row="1" Grid.RowSpan="2" Grid.Column="1"
+                Width="{Binding CanvasWidth, Mode=OneWayToSource}"
+                Height="{Binding CanvasHeight, Mode=OneWayToSource}"
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch">
+                <Image 
+                Stretch="None"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Source="{Binding CurrentBitmap}"/>
+            </Canvas>
     </Grid>
 </Window>

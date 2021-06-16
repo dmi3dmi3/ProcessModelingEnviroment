@@ -1,7 +1,7 @@
-﻿using Microsoft.Win32;
+﻿using CellarAutomatonLib;
+using Microsoft.Win32;
 using OxyPlot;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -9,8 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using CellarAutomatonLib;
 
 namespace PmeVisualizationWpf
 {
@@ -19,29 +19,23 @@ namespace PmeVisualizationWpf
         public MainViewModel()
         {
             IsNotProcessing = true;
-            CanvasItemsSource = new ObservableCollection<Shape>();
             GraphsItemSource = new ObservableCollection<GraphViewModel>();
-            CanvasHeight = 900;
-            CanvasWidth = 900;
-            _brushes = new[]{
-                Brushes.Gray,
-                Brushes.Blue,
-                Brushes.Red,
-                Brushes.Green,
-                Brushes.Black,
-                Brushes.Olive,
+            _colors = new[]
+            {
+                Color.FromArgb(255, 0, 0, 0),
+                Color.FromArgb(255, 100, 100, 100),
+                Color.FromArgb(255, 255, 0, 0),
+                Color.FromArgb(255, 0, 255, 0),
+                Color.FromArgb(255, 0, 0, 255),
+                Color.FromArgb(255, 255, 255, 0),
+                Color.FromArgb(255, 255, 0, 255),
+                Color.FromArgb(255, 0, 255, 255),
+                Color.FromArgb(255, 255, 255, 255),
             };
-            _colors = _brushes
-                .Select(_ => _.Color)
-                .ToArray();
-
         }
-
-        private readonly SolidColorBrush[] _brushes;
 
         private readonly Color[] _colors;
 
-        private MainWindow _mainWindow;
         private Config _config;
         private int[,,] _caList;
         protected override void OnPathSelect(object obj = null)
@@ -73,19 +67,6 @@ namespace PmeVisualizationWpf
                     }
                 }
 
-                CanvasItemsSource.Clear();
-                var cellWidth = CanvasWidth / _config.Width;
-                var cellHeight = CanvasHeight / _config.Height;
-                for (var h = 0; h < _config.Height; h++)
-                    for (var k = 0; k < _config.Width; k++)
-                        CanvasItemsSource.Add(new Rectangle
-                        {
-                            Width = cellWidth,
-                            Height = cellHeight,
-                            Margin = new Thickness(cellWidth * k, cellHeight * h, 0, 0),
-                            Fill = Brushes.White
-                        });
-
                 var stateGraphsPath = _config.Paths[Config.StateGraphsName];
                 var gd = GraphsDescriber.Deserialize(File.ReadAllText(stateGraphsPath));
                 foreach (var state in gd.StateGraphs.Keys)
@@ -99,7 +80,7 @@ namespace PmeVisualizationWpf
                 }
 
                 Step = 0;
-                Draw(Step);
+                Draw(Step, null);
             }
         }
 
@@ -116,7 +97,7 @@ namespace PmeVisualizationWpf
             if (Step == 0)
                 return;
             Step--;
-            Draw(Step);
+            Draw(Step, false);
         }
 
         private CancellationTokenSource cts = new CancellationTokenSource();
@@ -137,7 +118,12 @@ namespace PmeVisualizationWpf
                 {
                     while (Step < _config.StepCount && !token.IsCancellationRequested)
                     {
-                        Draw(Step++);
+                        Step++;
+                        var t = Application.Current.Dispatcher.InvokeAsync(delegate
+                        {
+                            Draw(Step);
+                        });
+                        t.Wait();
                         Task.Delay(50).Wait();
                     }
                 }, token);
@@ -149,28 +135,68 @@ namespace PmeVisualizationWpf
             if (IsPlaying)
                 OnPlay();
             Step = 0;
-            Draw(Step);
+            Draw(Step, null);
         }
-
-        private void Draw(int n)
+        
+        private void Draw(int n, bool? forward = true)
         {
-            IsNotProcessing = false;
-            var t = Application.Current.Dispatcher.InvokeAsync(delegate
+            double actualWidth = 900;
+            double actualHeight = 900;
+            int pixelSizeW = (int)(actualWidth / _config.Width);
+            int pixelSizeH = (int)(actualHeight / _config.Height);
+            WriteableBitmap writeableBitmap;
+            if (CurrentBitmap == null)
             {
-                for (var h = 0; h < _config.Height; h++)
+                writeableBitmap = new WriteableBitmap(_config.Width * pixelSizeW, _config.Height * pixelSizeH, 96,
+                    96, PixelFormats.Bgr32, null);
+            }
+            else
+            {
+                writeableBitmap = CurrentBitmap;
+            }
+            try
+            {
+                writeableBitmap.Lock();
+                for (int h = 0; h < _config.Height; h++)
                     for (var k = 0; k < _config.Width; k++)
                     {
-                        if (CanvasItemsSource[_config.Width * h + k].Fill != _brushes[_caList[h, k, n]])
-                            CanvasItemsSource[_config.Width * h + k].Fill = _brushes[_caList[h, k, n]];
-                    }
-            });
-            t.Wait();
-            IsNotProcessing = true;
-        }
+                        if (CurrentBitmap != null && forward.HasValue && _colors[_caList[h, k, n]] == _colors[_caList[h, k, forward.Value ? n - 1 : n + 1]])
+                            continue;
 
-        public void SetMainWindow(MainWindow mainWindow)
-        {
-            _mainWindow = mainWindow;
+                        unsafe
+                        {
+                            for (int i = 0; i < pixelSizeH; i++)
+                            {
+                                for (int j = 0; j < pixelSizeW; j++)
+                                {
+                                    // Get a pointer to the back buffer.
+                                    IntPtr pBackBuffer = writeableBitmap.BackBuffer;
+
+                                    // Find the address of the pixel to draw.
+                                    pBackBuffer += (h * pixelSizeH + i) * writeableBitmap.BackBufferStride;
+                                    pBackBuffer += (k * pixelSizeW + j) * 4;
+
+                                    // Compute the pixel's color.
+                                    var colorData = _colors[_caList[h, k, n]].R << 16; // R
+                                    colorData |= _colors[_caList[h, k, n]].G << 8; // G
+                                    colorData |= _colors[_caList[h, k, n]].B << 0; // B
+
+                                    // Assign the color data to the pixel.
+                                    *(int*)pBackBuffer = colorData;
+                                }
+                            }
+                        }
+                    }
+                // Specify the area of the bitmap that changed.
+                writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, _config.Width * pixelSizeW, _config.Height * pixelSizeH));
+
+            }
+            finally
+            {
+                writeableBitmap.Unlock();
+            }
+
+            CurrentBitmap = writeableBitmap;
         }
     }
 }

@@ -74,7 +74,7 @@ namespace PmeGeneratingConsole
                 }
 
                 Console.CursorLeft = 0;
-                Console.Write(100d / ca.Config.StepCount * ca.Step);
+                Console.Write($"{100d / ca.Config.StepCount * ca.Step:F1}");
                 Console.Write('%');
             }
 

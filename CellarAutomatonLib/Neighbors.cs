@@ -11,7 +11,7 @@ namespace CellarAutomatonLib
             NeighborsCell = new Cell[8];
         }
         public Cell[] NeighborsCell { get; set; }
-        public int StateCount(int state) => NeighborsCell.Count(_ => _.State == state);
+        public int StateCount(int state) => NeighborsCell.Count(_ => _ != null && _.State == state);
 
         public Cell SW => NeighborsCell[0];
         public Cell S => NeighborsCell[1];

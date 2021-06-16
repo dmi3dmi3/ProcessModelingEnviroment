@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace PmeVisualizationWpf
@@ -15,12 +16,14 @@ namespace PmeVisualizationWpf
         private ICommand _nextCommand;
         private ICommand _previousCommand;
         private ICommand _playCommand;
-        private ObservableCollection<Shape> _canvasItemsSource;
         private int _step;
         private ObservableCollection<GraphViewModel> _graphsItemSource;
         private bool _isPlaying;
         private ICommand _restartCommand;
         private bool _isNotProcessing;
+        private WriteableBitmap _currentBitmap;
+        private double _canvasWidth;
+        private double _canvasHeight;
 
         protected virtual void OnPathSelect(object obj = null) { }
         protected virtual void OnNext(object obj = null) { }
@@ -29,8 +32,6 @@ namespace PmeVisualizationWpf
         protected virtual void OnRestart(object obj = null) { }
 
         public string PlayButtonText => IsPlaying ? "Stop" : "Play";
-        public double CanvasWidth { get; set; }
-        public double CanvasHeight { get; set; }
         public int Step
         {
             get => _step;
@@ -38,6 +39,17 @@ namespace PmeVisualizationWpf
             {
                 if (value == _step) return;
                 _step = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentBitmap));
+            }
+        }
+        public WriteableBitmap CurrentBitmap
+        {
+            get => _currentBitmap;
+            set
+            {
+                if (Equals(value, _currentBitmap)) return;
+                _currentBitmap = value;
                 OnPropertyChanged();
             }
         }
@@ -63,7 +75,6 @@ namespace PmeVisualizationWpf
                 OnPropertyChanged(nameof(PlayButtonText));
             }
         }
-
         public bool IsNotProcessing
         {
             get => _isNotProcessing;
@@ -74,7 +85,6 @@ namespace PmeVisualizationWpf
                 OnPropertyChanged();
             }
         }
-
         public ObservableCollection<GraphViewModel> GraphsItemSource
         {
             get => _graphsItemSource;
@@ -86,18 +96,28 @@ namespace PmeVisualizationWpf
                 OnPropertyChanged();
             }
         }
-        public ObservableCollection<Shape> CanvasItemsSource
+
+        public double CanvasWidth
         {
-            get => _canvasItemsSource;
+            get => _canvasWidth;
             set
             {
-                if (Equals(value, _canvasItemsSource))
-                    return;
-                _canvasItemsSource = value;
+                if (value.Equals(_canvasWidth)) return;
+                _canvasWidth = value;
                 OnPropertyChanged();
             }
         }
 
+        public double CanvasHeight
+        {
+            get => _canvasHeight;
+            set
+            {
+                if (value.Equals(_canvasHeight)) return;
+                _canvasHeight = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ICommand SelectPathCommand => _selectPathCommand ?? (_selectPathCommand = new CommandWrapper(OnPathSelect));
         public ICommand NextCommand => _nextCommand ?? (_nextCommand = new CommandWrapper(OnNext));
