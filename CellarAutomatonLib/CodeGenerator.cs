@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CSharp;
-using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, bool>;
+using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, int, int,  bool>;
 using StartStateType = System.Func<int, int, bool>;
 using ProcessorType = System.Action<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int>;
 
@@ -78,7 +78,7 @@ namespace CellarAutomatonLib
 
         private static string GetStateMachineMethod(int from, int to, string code) =>
             $@"
-        public static bool From{from}To{to}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n)
+        public static bool From{from}To{to}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
         {{
             {code}
         }}";

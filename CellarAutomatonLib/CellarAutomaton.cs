@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, bool>;
+using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, int, int, bool>;
 using StartStateType = System.Func<int, int, bool>;
 using ProcessorType = System.Action<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int>;
 
@@ -42,7 +42,7 @@ namespace CellarAutomatonLib
 
             //init state machine
             StateMachine = CodeGenerator
-                .GetStateMachine(config.States.ToDictionary(_ => _.Key, _ => _.Value.StateMachine));
+                .GetStateMachine(config.States.ToDictionary(_ => _.Key, _ => _.Value.GetStateMachine()));
 
             //init start configs
             var startConfigs = config.States.ToDictionary(_ => _.Key, _ => _.Value.Start);
@@ -199,7 +199,7 @@ namespace CellarAutomatonLib
             for (var i = 0; i < Board.GetLength(0); i++)
                 for (var j = 0; j < Board.GetLength(1); j++)
                 {
-                    if (!Preprocessor.TryGetValue(Board[i, j].State, out var action)) 
+                    if (!Preprocessor.TryGetValue(Board[i, j].State, out var action))
                         continue;
                     var nb = Neighbors.GetNeighbors(i, j, Board, _random, Config);
                     action(nb, Board[i, j].Memory, Config.Global, Step);
@@ -215,7 +215,7 @@ namespace CellarAutomatonLib
             for (var i = 0; i < Board.GetLength(0); i++)
                 for (var j = 0; j < Board.GetLength(1); j++)
                 {
-                    if (!Postprocessor.TryGetValue(Board[i, j].State, out var action)) 
+                    if (!Postprocessor.TryGetValue(Board[i, j].State, out var action))
                         continue;
                     var nb = Neighbors.GetNeighbors(i, j, Board, _random, Config);
                     action(nb, Board[i, j].Memory, Config.Global, Step);
@@ -234,7 +234,7 @@ namespace CellarAutomatonLib
                     int? newState = null;
                     foreach (var kvp in StateMachine[Board[i, j].State])
                     {
-                        if (!kvp.Value(nb, result[i, j].Memory, Config.Global, Step))
+                        if (!kvp.Value(nb, result[i, j].Memory, Config.Global, Step, i, j))
                             continue;
                         newState = kvp.Key;
                         break;
