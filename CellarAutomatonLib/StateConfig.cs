@@ -11,31 +11,39 @@ namespace CellarAutomatonLib
         public string Preprocessor { get; set; }
         public string Postprocessor { get; set; }
 
-        public Dictionary<int, string> GetStateMachine()
-        {
-            if (StateMachine == null)
-                return null;
+        /// <summary>
+        /// Returns StateMachine adding quotes
+        /// </summary>
+        public Dictionary<int, string> GetStateMachine() => 
+            StateMachine?.ToDictionary(kvp => kvp.Key, kvp => AddQuotes(kvp.Value));
 
-            var result = new Dictionary<int, string>();
-            foreach (var kvp in StateMachine)
+        /// <summary>
+        /// Returns Preprocessor adding quotes
+        /// </summary>
+        public string GetPreprocessor() => AddQuotes(Preprocessor);
+
+        /// <summary>
+        /// Returns Postprocessor adding quotes
+        /// </summary>
+        public string GetPostprocessor() => AddQuotes(Postprocessor);
+
+        private static string AddQuotes(string str)
+        {
+            var list = str.ToList();
+            for (var i = 1; i < list.Count - 1; i++)
             {
-                var list = kvp.Value.ToList();
-                for (var i = 1; i < list.Count -1; i++)
+                if (list[i] == '[' && list[i + 1] != '"')
                 {
-                    if (list[i] == '[' && list[i + 1] != '"')
-                    {
-                        list.Insert(i+1, '"');
-                    }
-                    else if (list[i] == ']' && list[i - 1] != '"')
-                    {
-                        list.Insert(i, '"');
-                        i++;
-                    }
+                    list.Insert(i + 1, '"');
                 }
-                result.Add(kvp.Key, string.Concat(list));
+                else if (list[i] == ']' && list[i - 1] != '"')
+                {
+                    list.Insert(i, '"');
+                    i++;
+                }
             }
 
-            return result;
+            return string.Concat(list);
         }
     }
 }

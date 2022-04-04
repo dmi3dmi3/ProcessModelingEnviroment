@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Microsoft.CSharp;
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using Microsoft.CSharp;
-using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, int, int,  bool>;
+using ProcessorType = System.Action<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, int, int>;
 using StartStateType = System.Func<int, int, bool>;
-using ProcessorType = System.Action<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int>;
+using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, int, int, bool>;
 
 namespace CellarAutomatonLib
 {
@@ -23,7 +22,7 @@ namespace CellarAutomatonLib
                 GenerateExecutable = false
             };
             cp.ReferencedAssemblies.Add("System.dll");
-            cp.ReferencedAssemblies.Add(new Uri(Assembly.GetExecutingAssembly().EscapedCodeBase).LocalPath);
+            cp.ReferencedAssemblies.Add(new Uri(typeof(Neighbors).Assembly.EscapedCodeBase).LocalPath);
 
             var keys = input.Select(_ => _.Key).ToArray();
             foreach (var from in keys)
@@ -37,7 +36,7 @@ namespace CellarAutomatonLib
                          GetStateMachineMethod(@from.Key, to.Key, to.Value))
                  )
                  .ToList();
-            
+
 
             var classCode =
                 $@"using System;
@@ -59,6 +58,8 @@ namespace CellarAutomatonLib
 }}
 ";
             var cr = cpd.CompileAssemblyFromSource(cp, classCode);
+            if (cr.Errors.HasErrors)
+                throw new Exception(string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) + Environment.NewLine + cr.Errors[0].FileName);
             var assembly = cr.CompiledAssembly;
             var type = assembly.GetType("CellarAutomatonLib.StateMachineGeneratedCode");
             var methods = type.GetMethods();
@@ -111,6 +112,8 @@ namespace CellarAutomatonLib
 }}";
 
             var cr = cpd.CompileAssemblyFromSource(cp, classCode);
+            if (cr.Errors.HasErrors)
+                throw new Exception(string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) + Environment.NewLine + cr.Errors[0].FileName);
             var assembly = cr.CompiledAssembly;
             var type = assembly.GetType("CellarAutomatonLib.StartStateGeneratedCode");
             var methods = type.GetMethods();
@@ -142,6 +145,7 @@ namespace CellarAutomatonLib
                 TempFiles = { KeepFiles = true },
                 GenerateExecutable = false
             };
+            cp.ReferencedAssemblies.Add(new Uri(typeof(Neighbors).Assembly.EscapedCodeBase).LocalPath);
 
             var methodsCode = input.Select(_ => GePreprocessorMethod(_.Key, _.Value))
                 .ToList();
@@ -165,6 +169,9 @@ namespace CellarAutomatonLib
 }}";
 
             var cr = cpd.CompileAssemblyFromSource(cp, classCode);
+            if (cr.Errors.HasErrors)
+                throw new Exception(string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) + Environment.NewLine + cr.Errors[0].FileName);
+
             var assembly = cr.CompiledAssembly;
             var type = assembly.GetType("CellarAutomatonLib.PreprocessorGeneratedCode");
             var methods = type.GetMethods();
@@ -179,13 +186,13 @@ namespace CellarAutomatonLib
         }
 
         private static string GePreprocessorMethod(int i, string code) =>
-            $@"public static bool Preprocessor{i}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n)
+            $@"public static void Preprocessor{i}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
 {{
     {code}
 }}";
 
-        #endregion       
-        
+        #endregion
+
         #region PostProcessor
 
         public static Dictionary<int, ProcessorType> GetPostprocessorFuncs(Dictionary<int, string> input)
@@ -196,6 +203,7 @@ namespace CellarAutomatonLib
                 TempFiles = { KeepFiles = true },
                 GenerateExecutable = false
             };
+            cp.ReferencedAssemblies.Add(new Uri(typeof(Neighbors).Assembly.EscapedCodeBase).LocalPath);
 
             var methodsCode = input.Select(_ => GePostprocessorMethod(_.Key, _.Value))
                 .ToList();
@@ -219,6 +227,10 @@ namespace CellarAutomatonLib
 }}";
 
             var cr = cpd.CompileAssemblyFromSource(cp, classCode);
+
+            if (cr.Errors.HasErrors)
+                throw new Exception(string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) + Environment.NewLine + cr.Errors[0].FileName);
+
             var assembly = cr.CompiledAssembly;
             var type = assembly.GetType("CellarAutomatonLib.PostprocessorGeneratedCode");
             var methods = type.GetMethods();
@@ -233,7 +245,7 @@ namespace CellarAutomatonLib
         }
 
         private static string GePostprocessorMethod(int i, string code) =>
-            $@"public static bool Postprocessor{i}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n)
+            $@"public static void Postprocessor{i}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
 {{
     {code}
 }}";

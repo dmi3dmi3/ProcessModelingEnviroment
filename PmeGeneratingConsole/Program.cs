@@ -1,22 +1,22 @@
-﻿using System;
+﻿using CellarAutomatonLib;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CellarAutomatonLib;
 
 namespace PmeGeneratingConsole
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             const string configPathArg = "-c";
             const string projectNameArg = "-p";
             var k = 0;
             string projectName = null, configPath = null;
-            for (;;)
+            for (; ; )
             {
-                if (k >= args.Length)
+                if (k >= args.Length || (projectName != null && configPath != null))
                     break;
                 switch (args[k])
                 {
@@ -60,7 +60,8 @@ namespace PmeGeneratingConsole
             ca.Init();
             writeBuffer[i++] = ca.GetSerializedBoard();
             var cellCount = config.Width * config.Height;
-            var stateGraphs = ca.GetStatesCount().ToDictionary(_ => _.Key, _ => new List<double>(config.StepCount) { (double)_.Value / cellCount });
+            var stateGraphs = ca.GetStatesCount()
+                .ToDictionary(_ => _.Key, _ => new List<double>(config.StepCount) { (double)_.Value / cellCount });
             while (ca.Step < ca.Config.StepCount)
             {
                 ca.CalculateNext();

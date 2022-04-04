@@ -13,25 +13,25 @@ namespace CellarAutomatonLib
         public Cell[] NeighborsCell { get; set; }
         public int StateCount(int state) => NeighborsCell.Count(_ => _ != null && _.State == state);
 
-        public Cell SW => NeighborsCell[0];
-        public Cell S => NeighborsCell[1];
-        public Cell SE => NeighborsCell[2];
-        public Cell W => NeighborsCell[3];
-        public Cell E => NeighborsCell[4];
-        public Cell NW => NeighborsCell[5];
-        public Cell N => NeighborsCell[6];
-        public Cell NE => NeighborsCell[7];
+        public Cell NW => NeighborsCell[0];
+        public Cell W => NeighborsCell[1];
+        public Cell SW => NeighborsCell[2];
+        public Cell N => NeighborsCell[3];
+        public Cell S => NeighborsCell[4];
+        public Cell NE => NeighborsCell[5];
+        public Cell E => NeighborsCell[6];
+        public Cell SE => NeighborsCell[7];
 
         private static readonly List<(int, int)> _shiftList = new List<(int, int)>
         {
-            (-1, -1), //sw
-            (-1, 0), //s
-            (-1, 1), //se
-            (0, -1),//w
-            (0, 1),//e
-            (1, -1),//nw
-            (1, 0),//n
-            (1, 1)//ne
+            (-1, -1),//nw
+            (-1, 0), //w
+            (-1, 1), //sw
+            (0, -1), //n
+            (0, 1),  //s
+            (1, -1), //ne
+            (1, 0),  //e
+            (1, 1)   //se
         };
 
         public  static Neighbors GetNeighbors(int x, int y, Cell[,] board, Random random, Config config)

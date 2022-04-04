@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace PmeVisualizationWpf
 {
@@ -23,10 +22,10 @@ namespace PmeVisualizationWpf
             _colors = new[]
             {
                 Color.FromArgb(255, 0, 0, 0),
-                Color.FromArgb(255, 100, 100, 100),
-                Color.FromArgb(255, 255, 0, 0),
                 Color.FromArgb(255, 0, 255, 0),
+                Color.FromArgb(255, 255, 0, 0),
                 Color.FromArgb(255, 0, 0, 255),
+                Color.FromArgb(255, 100, 100, 100),
                 Color.FromArgb(255, 255, 255, 0),
                 Color.FromArgb(255, 255, 0, 255),
                 Color.FromArgb(255, 0, 255, 255),
@@ -48,14 +47,14 @@ namespace PmeVisualizationWpf
                 var text = File.ReadAllText(ProjectPath);
                 _config = Config.Deserialize(text);
                 var caLogPath = _config.Paths[Config.CaLogName];
-                _caList = new int[_config.Height, _config.Width, _config.StepCount + 3];
+                _caList = new int[_config.Width, _config.Height, _config.StepCount + 3];
                 var i = 0;
                 var j = 0;
                 var n = 0;
                 foreach (var line in File.ReadLines(caLogPath))
                 {
                     foreach (var item in line.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                        _caList[j, i++, n] = int.Parse(item);
+                        _caList[i++, j, n] = int.Parse(item);
 
                     i = 0;
                     j++;
@@ -69,6 +68,7 @@ namespace PmeVisualizationWpf
 
                 var stateGraphsPath = _config.Paths[Config.StateGraphsName];
                 var gd = GraphsDescriber.Deserialize(File.ReadAllText(stateGraphsPath));
+                GraphsItemSource.Clear();
                 foreach (var state in gd.StateGraphs.Keys)
                 {
                     GraphsItemSource.Add(new GraphViewModel
@@ -108,7 +108,16 @@ namespace PmeVisualizationWpf
             {
                 IsPlaying = false;
                 cts.Cancel();
-                _calcTask.Wait();
+                try
+                {
+                    _calcTask.Wait();
+                }
+                catch (AggregateException e)
+                {
+                    if (!(e.InnerExceptions.Any(_ => _ is TaskCanceledException)))
+                        throw;
+                }
+               
             }
             else
             {
@@ -126,6 +135,8 @@ namespace PmeVisualizationWpf
                         t.Wait();
                         Task.Delay(50).Wait();
                     }
+
+                    IsPlaying = false;
                 }, token);
             }
         }
@@ -137,7 +148,7 @@ namespace PmeVisualizationWpf
             Step = 0;
             Draw(Step, null);
         }
-        
+
         private void Draw(int n, bool? forward = true)
         {
             double actualWidth = 900;
@@ -158,9 +169,9 @@ namespace PmeVisualizationWpf
             {
                 writeableBitmap.Lock();
                 for (int h = 0; h < _config.Height; h++)
-                    for (var k = 0; k < _config.Width; k++)
+                    for (var w = 0; w < _config.Width; w++)
                     {
-                        if (CurrentBitmap != null && forward.HasValue && _colors[_caList[h, k, n]] == _colors[_caList[h, k, forward.Value ? n - 1 : n + 1]])
+                        if (CurrentBitmap != null && forward.HasValue && _colors[_caList[w, h, n]] == _colors[_caList[w, h, forward.Value ? n - 1 : n + 1]])
                             continue;
 
                         unsafe
@@ -174,12 +185,12 @@ namespace PmeVisualizationWpf
 
                                     // Find the address of the pixel to draw.
                                     pBackBuffer += (h * pixelSizeH + i) * writeableBitmap.BackBufferStride;
-                                    pBackBuffer += (k * pixelSizeW + j) * 4;
+                                    pBackBuffer += (w * pixelSizeW + j) * 4;
 
                                     // Compute the pixel's color.
-                                    var colorData = _colors[_caList[h, k, n]].R << 16; // R
-                                    colorData |= _colors[_caList[h, k, n]].G << 8; // G
-                                    colorData |= _colors[_caList[h, k, n]].B << 0; // B
+                                    var colorData = _colors[_caList[w, h, n]].R << 16; // R
+                                    colorData |= _colors[_caList[w, h, n]].G << 8; // G
+                                    colorData |= _colors[_caList[w, h, n]].B << 0; // B
 
                                     // Assign the color data to the pixel.
                                     *(int*)pBackBuffer = colorData;

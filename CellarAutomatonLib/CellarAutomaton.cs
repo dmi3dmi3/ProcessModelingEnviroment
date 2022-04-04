@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, int, int, bool>;
+using ProcessorType = System.Action<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, int, int>;
 using StartStateType = System.Func<int, int, bool>;
-using ProcessorType = System.Action<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int>;
+using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, int, int, bool>;
 
 
 namespace CellarAutomatonLib
@@ -78,14 +78,14 @@ namespace CellarAutomatonLib
                 .ToArray();
             if (preprocStates.Length != 0)
                 Preprocessor = CodeGenerator.GetPreprocessorFuncs(
-                        preprocStates.ToDictionary(_ => _.Key, _ => _.Value.Preprocessor));
+                        preprocStates.ToDictionary(_ => _.Key, _ => _.Value.GetPreprocessor()));
 
             var postprocStates = config.States
                 .Where(_ => _.Value.Postprocessor != null)
                 .ToArray();
             if (postprocStates.Length != 0)
                 Postprocessor = CodeGenerator.GetPostprocessorFuncs(
-                    postprocStates.ToDictionary(_ => _.Key, _ => _.Value.Postprocessor));
+                    postprocStates.ToDictionary(_ => _.Key, _ => _.Value.GetPostprocessor()));
         }
 
         public void Init(int? seed = null)
@@ -193,32 +193,28 @@ namespace CellarAutomatonLib
         private void PreprocessorExecute()
         {
             if (Preprocessor == null || Preprocessor.Count == 0)
-            {
                 return;
-            }
             for (var i = 0; i < Board.GetLength(0); i++)
                 for (var j = 0; j < Board.GetLength(1); j++)
                 {
                     if (!Preprocessor.TryGetValue(Board[i, j].State, out var action))
                         continue;
                     var nb = Neighbors.GetNeighbors(i, j, Board, _random, Config);
-                    action(nb, Board[i, j].Memory, Config.Global, Step);
+                    action(nb, Board[i, j].Memory, Config.Global, Step, i, j);
                 }
         }
 
         private void PostprocessorExecute()
         {
             if (Postprocessor == null || Postprocessor.Count == 0)
-            {
                 return;
-            }
             for (var i = 0; i < Board.GetLength(0); i++)
                 for (var j = 0; j < Board.GetLength(1); j++)
                 {
                     if (!Postprocessor.TryGetValue(Board[i, j].State, out var action))
                         continue;
                     var nb = Neighbors.GetNeighbors(i, j, Board, _random, Config);
-                    action(nb, Board[i, j].Memory, Config.Global, Step);
+                    action(nb, Board[i, j].Memory, Config.Global, Step, i, j);
                 }
         }
 

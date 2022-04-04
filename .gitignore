@@ -17,3 +17,10 @@
 /ProcessModelingEnvironment/packages
 /.vs/ProcessModelingEnvironment
 /packages
+/CellarAutomatonLib/bin/Release
+/CellarAutomatonLib/obj/Release
+/PmeGeneratingConsole/bin/Release
+/PmeGeneratingConsole/obj/Release
+/PmeVisualizationWpf/obj/Release
+/TestData/*.ca
+/TestData/*.sg
