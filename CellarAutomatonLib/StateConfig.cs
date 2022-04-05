@@ -32,14 +32,15 @@ namespace CellarAutomatonLib
             var list = str.ToList();
             for (var i = 1; i < list.Count - 1; i++)
             {
-                if (list[i] == '[' && list[i + 1] != '"')
+                switch (list[i])
                 {
-                    list.Insert(i + 1, '"');
-                }
-                else if (list[i] == ']' && list[i - 1] != '"')
-                {
-                    list.Insert(i, '"');
-                    i++;
+                    case '[' when list[i + 1] != '"':
+                        list.Insert(i + 1, '"');
+                        break;
+                    case ']' when list[i - 1] != '"':
+                        list.Insert(i, '"');
+                        i++;
+                        break;
                 }
             }
 

@@ -9,6 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PmeGeneratingConsole", "Pme
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PmeVisualizationWpf", "PmeVisualizationWpf\PmeVisualizationWpf.csproj", "{739EA84D-07F2-461A-9488-D58EF99C579D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginSDK", "PluginSDK\PluginSDK.csproj", "{D4E87D47-451C-402E-AA54-2A74CFC6068A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{23CD196A-20E4-4881-A08A-FD3661477629}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoutingPlugin", "RoutingPlugin\RoutingPlugin.csproj", "{DB833026-9764-4143-ACD7-D19ADBF911B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,11 +33,22 @@ Global
 		{739EA84D-07F2-461A-9488-D58EF99C579D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{739EA84D-07F2-461A-9488-D58EF99C579D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{739EA84D-07F2-461A-9488-D58EF99C579D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4E87D47-451C-402E-AA54-2A74CFC6068A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4E87D47-451C-402E-AA54-2A74CFC6068A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4E87D47-451C-402E-AA54-2A74CFC6068A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4E87D47-451C-402E-AA54-2A74CFC6068A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB833026-9764-4143-ACD7-D19ADBF911B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB833026-9764-4143-ACD7-D19ADBF911B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB833026-9764-4143-ACD7-D19ADBF911B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB833026-9764-4143-ACD7-D19ADBF911B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8D77209E-F39E-4870-BE7C-E1BEF81922BF}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DB833026-9764-4143-ACD7-D19ADBF911B6} = {23CD196A-20E4-4881-A08A-FD3661477629}
 	EndGlobalSection
 EndGlobal

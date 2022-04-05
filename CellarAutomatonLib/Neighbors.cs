@@ -1,28 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PluginSDK;
 
 namespace CellarAutomatonLib
 {
-    public class Neighbors
+    public class Neighbors : INeighbors
     {
-        public Neighbors()
+        private Neighbors()
         {
             NeighborsCell = new Cell[8];
         }
-        public Cell[] NeighborsCell { get; set; }
+
+        public ICell[] NeighborsCell { get; }
         public int StateCount(int state) => NeighborsCell.Count(_ => _ != null && _.State == state);
 
-        public Cell NW => NeighborsCell[0];
-        public Cell W => NeighborsCell[1];
-        public Cell SW => NeighborsCell[2];
-        public Cell N => NeighborsCell[3];
-        public Cell S => NeighborsCell[4];
-        public Cell NE => NeighborsCell[5];
-        public Cell E => NeighborsCell[6];
-        public Cell SE => NeighborsCell[7];
+        public ICell NW => NeighborsCell[0];
+        public ICell W => NeighborsCell[1];
+        public ICell SW => NeighborsCell[2];
+        public ICell N => NeighborsCell[3];
+        public ICell S => NeighborsCell[4];
+        public ICell NE => NeighborsCell[5];
+        public ICell E => NeighborsCell[6];
+        public ICell SE => NeighborsCell[7];
 
-        private static readonly List<(int, int)> _shiftList = new List<(int, int)>
+        private static readonly List<(int, int)> ShiftList = new List<(int, int)>
         {
             (-1, -1),//nw
             (-1, 0), //w
@@ -40,7 +42,7 @@ namespace CellarAutomatonLib
             var c = -1;
             if (config.LoopEdges)
             {
-                foreach (var (i, j) in _shiftList)
+                foreach (var (i, j) in ShiftList)
                 {
                     c++;
                     if (random.Next(100) < config.IsolationPercent)
@@ -52,7 +54,7 @@ namespace CellarAutomatonLib
             }
             else
             {
-                foreach (var (i, j) in _shiftList)
+                foreach (var (i, j) in ShiftList)
                 {
                     c++;
                     if (random.Next(100) < config.IsolationPercent)

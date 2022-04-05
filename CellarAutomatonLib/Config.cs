@@ -38,19 +38,20 @@ namespace CellarAutomatonLib
             var list = str.Select(_ => _.ToString()).ToList();
             for (var i = 1; i < list.Count - 1; i++)
             {
-                if (list[i] == "\\" && list[i + 1] == "r" && list[i + 2] == "\\" && list[i + 3] == "n")
+                switch (list[i])
                 {
-                    list.RemoveAt(i);
-                    list.RemoveAt(i);
-                    list.RemoveAt(i);
-                    list.RemoveAt(i);
-                    list.Insert(i, Environment.NewLine);
-                }
-                else if (list[i] == "\\" && list[i + 1] == "t" && list[i - 1] != "\\")
-                {
-                    list.RemoveAt(i);
-                    list.RemoveAt(i);
-                    list.Insert(i, "    ");
+                    case "\\" when list[i + 1] == "r" && list[i + 2] == "\\" && list[i + 3] == "n":
+                        list.RemoveAt(i);
+                        list.RemoveAt(i);
+                        list.RemoveAt(i);
+                        list.RemoveAt(i);
+                        list.Insert(i, Environment.NewLine);
+                        break;
+                    case "\\" when list[i + 1] == "t" && list[i - 1] != "\\":
+                        list.RemoveAt(i);
+                        list.RemoveAt(i);
+                        list.Insert(i, "    ");
+                        break;
                 }
             }
 

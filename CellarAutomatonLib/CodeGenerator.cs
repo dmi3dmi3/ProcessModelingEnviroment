@@ -25,15 +25,13 @@ namespace CellarAutomatonLib
             cp.ReferencedAssemblies.Add(new Uri(typeof(Neighbors).Assembly.EscapedCodeBase).LocalPath);
 
             var keys = input.Select(_ => _.Key).ToArray();
-            foreach (var from in keys)
-                // ReSharper disable once ConvertIfStatementToNullCoalescingAssignment
-                if (input[from] == null)
-                    input[from] = new Dictionary<int, string>();
+            foreach (var from in keys) 
+                input[from] ??= new Dictionary<int, string>();
 
             var methodsCode = input
-                 .SelectMany(from => @from.Value
+                 .SelectMany(from => from.Value
                      .Select(to =>
-                         GetStateMachineMethod(@from.Key, to.Key, to.Value))
+                         GetStateMachineMethod(from.Key, to.Key, to.Value))
                  )
                  .ToList();
 

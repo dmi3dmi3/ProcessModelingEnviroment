@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace PmeGeneratingConsole
 {
-    internal class Program
+    internal static class Program
     {
         private static void Main(string[] args)
         {
@@ -14,7 +14,7 @@ namespace PmeGeneratingConsole
             const string projectNameArg = "-p";
             var k = 0;
             string projectName = null, configPath = null;
-            for (; ; )
+            for (;;)
             {
                 if (k >= args.Length || (projectName != null && configPath != null))
                     break;
@@ -46,10 +46,10 @@ namespace PmeGeneratingConsole
             var writeBuffer = new string[writeBufferLen];
             var i = 0;
 
-            if (config.Paths == null)
-                config.Paths = new Dictionary<string, string>();
-
-            var caLogPath = Path.Combine(Directory.GetParent(configPath).FullName, projectName + ".ca");
+            config.Paths ??= new Dictionary<string, string>();
+            var rootDirectory = Directory.GetParent(configPath)?.FullName ??
+                                throw new InvalidOperationException($"Error accessing config directory {configPath}");
+            var caLogPath = Path.Combine(rootDirectory, projectName + ".ca");
             if (config.Paths.ContainsKey(Config.CaLogName))
                 config.Paths[Config.CaLogName] = caLogPath;
             else
@@ -79,14 +79,15 @@ namespace PmeGeneratingConsole
                 Console.Write('%');
             }
 
-            var graphPath = Path.Combine(Directory.GetParent(configPath).FullName, projectName + ".sg");
+            var graphPath = Path.Combine(rootDirectory, projectName + ".sg");
+
             if (config.Paths.ContainsKey(Config.StateGraphsName))
                 config.Paths[Config.StateGraphsName] = graphPath;
             else
                 config.Paths.Add(Config.StateGraphsName, graphPath);
             File.Create(graphPath).Close();
 
-            var newConfigPath = Path.Combine(Directory.GetParent(configPath).FullName, projectName + ".cfg");
+            var newConfigPath = Path.Combine(rootDirectory, projectName + ".cfg");
             File.Create(newConfigPath).Close();
 
             File.AppendAllText(caLogPath, string.Join("", writeBuffer.Where((s, j) => j <= i)));
@@ -95,7 +96,6 @@ namespace PmeGeneratingConsole
 
             Console.WriteLine();
             Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Finish");
-
         }
     }
 }

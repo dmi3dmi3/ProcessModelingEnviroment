@@ -12,13 +12,13 @@ namespace CellarAutomatonLib
     public class CellarAutomaton
     {
         public Config Config { get; set; }
-        public Cell[,] Board { get; set; }
-        public Dictionary<int, Dictionary<int, StateMachineType>> StateMachine { get; set; }
-        public Dictionary<int, StartStateType> StartStateFunc { get; set; }
-        public Dictionary<int, int> StartStateCount { get; set; }
-        public Dictionary<int, double> StartStatePercent { get; set; }
-        public Dictionary<int, ProcessorType> Preprocessor { get; set; }
-        public Dictionary<int, ProcessorType> Postprocessor { get; set; }
+        private Cell[,] Board { get; set; }
+        private Dictionary<int, Dictionary<int, StateMachineType>> StateMachine { get; set; }
+        private Dictionary<int, StartStateType> StartStateFunc { get; set; }
+        private Dictionary<int, int> StartStateCount { get; set; }
+        private Dictionary<int, double> StartStatePercent { get; set; }
+        private Dictionary<int, ProcessorType> Preprocessor { get; set; }
+        private Dictionary<int, ProcessorType> Postprocessor { get; set; }
         public int Step { get; private set; }
         private Random _random;
         private readonly int _sbLen;
