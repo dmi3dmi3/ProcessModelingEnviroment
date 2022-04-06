@@ -57,7 +57,12 @@ namespace CellarAutomatonLib
 ";
             var cr = cpd.CompileAssemblyFromSource(cp, classCode);
             if (cr.Errors.HasErrors)
-                throw new Exception(string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) + Environment.NewLine + cr.Errors[0].FileName);
+                throw new Exception(
+                    string.Join(
+                        Environment.NewLine,
+                        cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) +
+                    Environment.NewLine + cr.Errors[0].FileName
+                    );
             var assembly = cr.CompiledAssembly;
             var type = assembly.GetType("CellarAutomatonLib.StateMachineGeneratedCode");
             var methods = type.GetMethods();

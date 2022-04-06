@@ -6,6 +6,6 @@ namespace RoutingPlugin
     public class Plugin : IPlugin
     {
         public string Name => "Routing";
-        public List<ICommand> commands { get; }
+        public List<IProcessorCommand> commands { get; }
     }
 }

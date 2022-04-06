@@ -40,8 +40,10 @@
     <ItemGroup>
         <Compile Include="ICell.cs" />
         <Compile Include="ICommand.cs" />
+        <Compile Include="IProcessorCommand.cs" />
         <Compile Include="INeighbors.cs" />
         <Compile Include="IPlugin.cs" />
+        <Compile Include="IStateChangeCommand.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

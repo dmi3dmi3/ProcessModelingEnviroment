@@ -6,6 +6,6 @@ namespace PluginSDK
     public interface IPlugin
     {
         String Name { get; }
-        List<ICommand> commands { get; }
+        List<IProcessorCommand> commands { get; }
     }
 }

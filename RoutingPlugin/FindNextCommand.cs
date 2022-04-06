@@ -4,17 +4,13 @@ using PluginSDK;
 
 namespace RoutingPlugin
 {
-    public class FindNextCommand : ICommand
+    public class FindNextCommand : IProcessorCommand
     {
         public string Name => "FindNext";
-        public void Execute(ICell cell, INeighbors neighbors)
+        public void Execute(INeighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
         {
-            foreach (var neighbor in neighbors.NeighborsCell.Where(c => c != null && c.State == 1))
-            {
-                var next = neighbor.MemoryStr["next"];
-                var x = int.Parse(next.Split(':')[0]);
-                var y = int.Parse(next.Split(':')[1]);
-            }
+            memory["nextX"] = 0;
+            memory["nextY"] = 0;
         }
     }
 }

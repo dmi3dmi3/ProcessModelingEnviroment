@@ -40,6 +40,7 @@
     <ItemGroup>
         <Compile Include="Data.cs" />
         <Compile Include="FindNextCommand.cs" />
+        <Compile Include="RouteNextCommand.cs" />
         <Compile Include="RoutingPlugin.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
