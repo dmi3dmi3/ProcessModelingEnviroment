@@ -5,7 +5,8 @@ namespace PluginSDK
 {
     public interface IPlugin
     {
-        String Name { get; }
-        List<IProcessorCommand> commands { get; }
+        string Name { get; }
+        List<IStateChangeCommand> StateChangeCommands { get; }
+        List<IProcessorCommand> ProcessorCommands { get; }
     }
 }

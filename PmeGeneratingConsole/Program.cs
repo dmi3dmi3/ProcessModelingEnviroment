@@ -40,6 +40,7 @@ namespace PmeGeneratingConsole
 
             var text = File.ReadAllText(configPath);
             var config = Config.Deserialize(text);
+            PluginManager.Init();
             var ca = new CellarAutomaton(config);
 
             const int writeBufferLen = 100;

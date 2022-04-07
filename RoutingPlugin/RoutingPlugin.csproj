@@ -18,6 +18,7 @@
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
         <OutputPath>bin\Debug\</OutputPath>
+        <OutputPath>..\PmeGeneratingConsole\bin\Debug\plugins\RoutingPlugin\</OutputPath>
         <DefineConstants>DEBUG;TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
@@ -27,6 +28,7 @@
         <DebugType>pdbonly</DebugType>
         <Optimize>true</Optimize>
         <OutputPath>bin\Release\</OutputPath>
+        <OutputPath>..\PmeGeneratingConsole\bin\Release\plugins\RoutingPlugin\</OutputPath>
         <DefineConstants>TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
@@ -38,9 +40,14 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Data.cs" />
-        <Compile Include="FindNextCommand.cs" />
-        <Compile Include="RouteNextCommand.cs" />
+        <Compile Include="Commands\CollectRouteTableCommand.cs" />
+        <Compile Include="Commands\HasNoPackagesCommand.cs" />
+        <Compile Include="Commands\HasNoRoutesCommand.cs" />
+        <Compile Include="Commands\IsRoutingCommand.cs" />
+        <Compile Include="Commands\MovePackagesCommand.cs" />
+        <Compile Include="GlobalMemory.cs" />
+        <Compile Include="Models\Point.cs" />
+        <Compile Include="Models\Route.cs" />
         <Compile Include="RoutingPlugin.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>

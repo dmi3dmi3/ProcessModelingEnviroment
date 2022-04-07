@@ -12,7 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <LangVersion>10</LangVersion>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,10 +51,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CellarAutomatonLibStandard\CellarAutomatonLibStandard.csproj">
-      <Project>{BEBAC2A1-DE28-48D0-B46D-59EFC5842CC3}</Project>
-      <Name>CellarAutomatonLibStandard</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CellarAutomatonLib\CellarAutomatonLib.csproj">
       <Project>{327E180D-8949-4399-B20B-CD2596D83E93}</Project>
       <Name>CellarAutomatonLib</Name>

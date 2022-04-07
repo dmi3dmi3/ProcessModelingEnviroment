@@ -22,5 +22,9 @@
 /PmeGeneratingConsole/bin/Release
 /PmeGeneratingConsole/obj/Release
 /PmeVisualizationWpf/obj/Release
+/RoutingPlugin/obj/
+/RoutingPlugin/bin/
+/PluginSDK/obj/
+/PluginSDK/bin/
 /TestData/*.ca
 /TestData/*.sg

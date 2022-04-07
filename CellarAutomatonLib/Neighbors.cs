@@ -9,7 +9,7 @@ namespace CellarAutomatonLib
     {
         private Neighbors()
         {
-            NeighborsCell = new Cell[8];
+            NeighborsCell = new ICell[8];
         }
 
         public ICell[] NeighborsCell { get; }

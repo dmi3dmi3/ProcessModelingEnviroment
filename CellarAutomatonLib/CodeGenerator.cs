@@ -3,15 +3,155 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
-using ProcessorType = System.Action<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, int, int>;
+using PluginSDK;
+using ProcessorType =
+    System.Action<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>,
+        System.Collections.Generic.Dictionary<string, double>, int, int, int>;
 using StartStateType = System.Func<int, int, bool>;
-using StateMachineType = System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>, System.Collections.Generic.Dictionary<string, double>, int, int, int, bool>;
+using StateMachineType =
+    System.Func<CellarAutomatonLib.Neighbors, System.Collections.Generic.Dictionary<string, double>,
+        System.Collections.Generic.Dictionary<string, double>, int, int, int, bool>;
 
 namespace CellarAutomatonLib
 {
     public static class CodeGenerator
     {
-        #region StateMachine
+        #region Templates
+
+//StateMachine
+        private const string StateMachineClassMethodsReplace = "#METHODS#";
+
+        private const string StateMachineClassTemplate = $@"using System;
+using System.Collections.Generic;
+using PluginSDK;
+
+namespace CellarAutomatonLib
+{{
+    public static class StateMachineGeneratedCode 
+    {{
+        private static Random random = new Random();
+        private static double RandomPercent(int mantissaLen = 3)
+        {{
+            int multiplicator = (int)Math.Pow(10, mantissaLen);
+            return random.Next(100 * multiplicator) / (double)multiplicator;
+        }}
+
+        {StateMachineClassMethodsReplace}
+    }}
+}}
+";
+
+        private const string StateMachineMethodFromReplace = "#FROM#";
+        private const string StateMachineMethodToReplace = "#TO#";
+        private const string StateMachineMethodCodeReplace = "#CODE#";
+
+        private const string StateMachineMethodTemplate = $@"
+        public static bool From{StateMachineMethodFromReplace}To{StateMachineMethodToReplace}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
+        {{
+            {StateMachineMethodCodeReplace}
+        }}";
+
+        private const string StateMachineMethodPluginTemplate = $@"
+        public static bool From{StateMachineMethodFromReplace}To{StateMachineMethodToReplace}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
+        {{
+            return PluginManager.StateChangeCommands[{"\"" + StateMachineMethodCodeReplace + "\""}].Execute(neighbors, memory, global, n, x, y);
+        }}";
+
+//StartState
+        private const string StartStateClassMethodsReplace = "#METHODS#";
+
+        private const string StartStateClassTemplate = $@"using System;
+
+namespace CellarAutomatonLib
+{{
+    public static class StartStateGeneratedCode 
+    {{
+        {StartStateClassMethodsReplace}
+    }}
+}}";
+
+        private const string StartStateMethodIndexReplace = "#INDEX#";
+        private const string StartStateMethodCodeReplace = "#CODE#";
+
+        private const string StartStateMethodTemplate = $@"
+public static bool StartState{StartStateMethodIndexReplace}(int x, int y)
+{{
+    {StartStateMethodCodeReplace}
+}}";
+
+//Preprocessor
+        private const string PreprocessorClassMethodsReplace = "#METHODS#";
+
+        private const string PreprocessorClassTemplate = $@"using System;
+using System.Collections.Generic;
+using PluginSDK;
+
+namespace CellarAutomatonLib
+{{
+    public static class PreprocessorGeneratedCode 
+    {{
+        private static Random random = new Random();
+        private static double NextRandom(int maxVal)
+        {{
+            return random.Next(maxVal);
+        }}
+
+            {PreprocessorClassMethodsReplace}
+    }}
+}}";
+
+        private const string PreprocessorMethodIndexReplace = "#INDEX#";
+        private const string PreprocessorMethodCodeReplace = "#CODE#";
+
+        private const string PreprocessorMethodTemplate = $@"
+public static void Preprocessor{PreprocessorMethodIndexReplace}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
+{{
+    {PreprocessorMethodCodeReplace}
+}}";
+
+        private const string PreprocessorMethodPluginTemplate = $@"
+public static void Preprocessor{PreprocessorMethodIndexReplace}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
+{{
+    PluginManager.ProcessorCommands[{"\"" + PostprocessorMethodCodeReplace + "\""}].Execute(neighbors, memory, global, n, x, y);
+}}";
+
+//Postprocessor
+        private const string PostprocessorClassMethodsReplace = "#METHODS#";
+
+        private const string PostprocessorClassTemplate = $@"using System;
+using System.Collections.Generic;
+using PluginSDK;
+
+namespace CellarAutomatonLib
+{{
+    public static class PostprocessorGeneratedCode 
+    {{
+        private static Random random = new Random();
+        private static double NextRandom(int maxVal)
+        {{
+            return random.Next(maxVal);
+        }}
+            {PostprocessorClassMethodsReplace}
+    }}
+}}";
+
+        private const string PostprocessorMethodIndexReplace = "#INDEX#";
+        private const string PostprocessorMethodCodeReplace = "#CODE#";
+
+        private const string PostprocessorMethodTemplate = $@"
+public static void Postprocessor{PostprocessorMethodIndexReplace}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
+{{
+    {PostprocessorMethodCodeReplace}
+}}";
+
+        private const string PostprocessorMethodPluginTemplate = $@"
+public static void Postprocessor{PostprocessorMethodIndexReplace}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
+{{
+    PluginManager.ProcessorCommands[{"\"" + PostprocessorMethodCodeReplace + "\""}].Execute(neighbors, memory, global, n, x, y);
+}}";
+
+        #endregion
+
         public static Dictionary<int, Dictionary<int, StateMachineType>> GetStateMachine(
             Dictionary<int, Dictionary<int, string>> input)
         {
@@ -23,38 +163,28 @@ namespace CellarAutomatonLib
             };
             cp.ReferencedAssemblies.Add("System.dll");
             cp.ReferencedAssemblies.Add(new Uri(typeof(Neighbors).Assembly.EscapedCodeBase).LocalPath);
+            cp.ReferencedAssemblies.Add(new Uri(typeof(INeighbors).Assembly.EscapedCodeBase).LocalPath);
 
             var keys = input.Select(_ => _.Key).ToArray();
-            foreach (var from in keys) 
+            foreach (var from in keys)
                 input[from] ??= new Dictionary<int, string>();
 
             var methodsCode = input
-                 .SelectMany(from => from.Value
-                     .Select(to =>
-                         GetStateMachineMethod(from.Key, to.Key, to.Value))
-                 )
-                 .ToList();
+                    .SelectMany(from => from.Value
+                        .Select(to =>
+                            (PluginManager.StateChangeCommands.ContainsKey(to.Value)
+                                ? StateMachineMethodPluginTemplate
+                                : StateMachineMethodTemplate)
+                        .Replace(StateMachineMethodFromReplace, from.Key.ToString())
+                        .Replace(StateMachineMethodToReplace, to.Key.ToString())
+                        .Replace(StateMachineMethodCodeReplace, to.Value))
+                )
+                .ToList();
 
 
-            var classCode =
-                $@"using System;
-using System.Collections.Generic;
-
-namespace CellarAutomatonLib
-{{
-    public static class StateMachineGeneratedCode 
-    {{
-    private static Random random = new Random();
-    private static double RandomPercent(int mantissaLen = 3)
-    {{
-        int multiplicator = (int)Math.Pow(10, mantissaLen);
-        return random.Next(100 * multiplicator) / (double)multiplicator;
-    }}
-
-{string.Join(Environment.NewLine, methodsCode)}
-    }}
-}}
-";
+            var classCode = StateMachineClassTemplate.Replace(
+                StateMachineClassMethodsReplace, string.Join(Environment.NewLine, methodsCode)
+            );
             var cr = cpd.CompileAssemblyFromSource(cp, classCode);
             if (cr.Errors.HasErrors)
                 throw new Exception(
@@ -62,7 +192,7 @@ namespace CellarAutomatonLib
                         Environment.NewLine,
                         cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) +
                     Environment.NewLine + cr.Errors[0].FileName
-                    );
+                );
             var assembly = cr.CompiledAssembly;
             var type = assembly.GetType("CellarAutomatonLib.StateMachineGeneratedCode");
             var methods = type.GetMethods();
@@ -80,17 +210,6 @@ namespace CellarAutomatonLib
             return result;
         }
 
-        private static string GetStateMachineMethod(int from, int to, string code) =>
-            $@"
-        public static bool From{from}To{to}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
-        {{
-            {code}
-        }}";
-
-        #endregion
-
-        #region StartState
-
         public static Dictionary<int, StartStateType> GetStartStateFuncs(Dictionary<int, string> input)
         {
             CodeDomProvider cpd = new CSharpCodeProvider();
@@ -100,23 +219,21 @@ namespace CellarAutomatonLib
                 GenerateExecutable = false
             };
 
-            var methodsCode = input.Select(_ => GetStartStateMethod(_.Key, _.Value))
+            var methodsCode = input
+                .Select(_ => StartStateMethodTemplate
+                    .Replace(StartStateMethodIndexReplace, _.Key.ToString())
+                    .Replace(StartStateMethodCodeReplace, _.Value))
                 .ToList();
 
-            var classCode =
-                $@"using System;
-
-namespace CellarAutomatonLib
-{{
-    public static class StartStateGeneratedCode 
-    {{
-{string.Join(Environment.NewLine, methodsCode)}
-    }}
-}}";
+            var classCode = StartStateClassTemplate.Replace(
+                StartStateClassMethodsReplace, string.Join(Environment.NewLine, methodsCode)
+            );
 
             var cr = cpd.CompileAssemblyFromSource(cp, classCode);
             if (cr.Errors.HasErrors)
-                throw new Exception(string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) + Environment.NewLine + cr.Errors[0].FileName);
+                throw new Exception(
+                    string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) +
+                    Environment.NewLine + cr.Errors[0].FileName);
             var assembly = cr.CompiledAssembly;
             var type = assembly.GetType("CellarAutomatonLib.StartStateGeneratedCode");
             var methods = type.GetMethods();
@@ -130,16 +247,6 @@ namespace CellarAutomatonLib
             return result;
         }
 
-        private static string GetStartStateMethod(int i, string code) =>
-            $@"public static bool StartState{i}(int x, int y)
-{{
-    {code}
-}}";
-
-        #endregion
-
-        #region PreProcessor
-
         public static Dictionary<int, ProcessorType> GetPreprocessorFuncs(Dictionary<int, string> input)
         {
             CodeDomProvider cpd = new CSharpCodeProvider();
@@ -149,31 +256,25 @@ namespace CellarAutomatonLib
                 GenerateExecutable = false
             };
             cp.ReferencedAssemblies.Add(new Uri(typeof(Neighbors).Assembly.EscapedCodeBase).LocalPath);
+            cp.ReferencedAssemblies.Add(new Uri(typeof(INeighbors).Assembly.EscapedCodeBase).LocalPath);
 
-            var methodsCode = input.Select(_ => GePreprocessorMethod(_.Key, _.Value))
+            var methodsCode = input
+                .Select(_ =>
+                    (PluginManager.ProcessorCommands.ContainsKey(_.Value)
+                        ? PreprocessorMethodPluginTemplate
+                        : PreprocessorMethodTemplate)
+                    .Replace(PreprocessorMethodIndexReplace, _.Key.ToString())
+                    .Replace(PreprocessorMethodCodeReplace, _.Value))
                 .ToList();
 
-            var classCode =
-                $@"using System;
-using System.Collections.Generic;
-
-namespace CellarAutomatonLib
-{{
-    public static class PreprocessorGeneratedCode 
-    {{
-    private static Random random = new Random();
-    private static double NextRandom(int maxVal)
-    {{
-        return random.Next(maxVal);
-    }}
-
-{string.Join(Environment.NewLine, methodsCode)}
-    }}
-}}";
+            var classCode = PreprocessorClassTemplate
+                .Replace(PreprocessorClassMethodsReplace, string.Join(Environment.NewLine, methodsCode));
 
             var cr = cpd.CompileAssemblyFromSource(cp, classCode);
             if (cr.Errors.HasErrors)
-                throw new Exception(string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) + Environment.NewLine + cr.Errors[0].FileName);
+                throw new Exception(
+                    string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) +
+                    Environment.NewLine + cr.Errors[0].FileName);
 
             var assembly = cr.CompiledAssembly;
             var type = assembly.GetType("CellarAutomatonLib.PreprocessorGeneratedCode");
@@ -188,16 +289,6 @@ namespace CellarAutomatonLib
             return result;
         }
 
-        private static string GePreprocessorMethod(int i, string code) =>
-            $@"public static void Preprocessor{i}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
-{{
-    {code}
-}}";
-
-        #endregion
-
-        #region PostProcessor
-
         public static Dictionary<int, ProcessorType> GetPostprocessorFuncs(Dictionary<int, string> input)
         {
             CodeDomProvider cpd = new CSharpCodeProvider();
@@ -207,32 +298,25 @@ namespace CellarAutomatonLib
                 GenerateExecutable = false
             };
             cp.ReferencedAssemblies.Add(new Uri(typeof(Neighbors).Assembly.EscapedCodeBase).LocalPath);
+            cp.ReferencedAssemblies.Add(new Uri(typeof(INeighbors).Assembly.EscapedCodeBase).LocalPath);
 
-            var methodsCode = input.Select(_ => GePostprocessorMethod(_.Key, _.Value))
+            var methodsCode = input
+                .Select(_ => (PluginManager.ProcessorCommands.ContainsKey(_.Value)
+                        ? PostprocessorMethodPluginTemplate
+                        : PostprocessorMethodTemplate)
+                    .Replace(PostprocessorMethodIndexReplace, _.Key.ToString())
+                    .Replace(PostprocessorMethodCodeReplace, _.Value))
                 .ToList();
 
-            var classCode =
-                $@"using System;
-using System.Collections.Generic;
-
-namespace CellarAutomatonLib
-{{
-    private static Random random = new Random();
-    private static double NextRandom(int maxVal)
-    {{
-        return random.Next(maxVal);
-    }}
-
-    public static class PostprocessorGeneratedCode 
-    {{
-{string.Join(Environment.NewLine, methodsCode)}
-    }}
-}}";
+            var classCode = PostprocessorClassTemplate
+                .Replace(PostprocessorClassMethodsReplace, string.Join(Environment.NewLine, methodsCode));
 
             var cr = cpd.CompileAssemblyFromSource(cp, classCode);
 
             if (cr.Errors.HasErrors)
-                throw new Exception(string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) + Environment.NewLine + cr.Errors[0].FileName);
+                throw new Exception(
+                    string.Join(Environment.NewLine, cr.Errors.Cast<CompilerError>().Select(_ => _.ErrorText)) +
+                    Environment.NewLine + cr.Errors[0].FileName);
 
             var assembly = cr.CompiledAssembly;
             var type = assembly.GetType("CellarAutomatonLib.PostprocessorGeneratedCode");
@@ -246,16 +330,5 @@ namespace CellarAutomatonLib
 
             return result;
         }
-
-        private static string GePostprocessorMethod(int i, string code) =>
-            $@"public static void Postprocessor{i}(Neighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
-{{
-    {code}
-}}";
-
-        #endregion
-
     }
-
-
 }

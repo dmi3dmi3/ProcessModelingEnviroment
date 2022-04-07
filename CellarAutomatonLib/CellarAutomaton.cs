@@ -173,12 +173,12 @@ namespace CellarAutomatonLib
             }
 
             Board = new Cell[Config.Height, Config.Width];
-            for (var i = 0; i < Config.Height; i++)
-                for (var j = 0; j < Config.Width; j++)
+            for (var x = 0; x < Config.Height; x++)
+                for (var y = 0; y < Config.Width; y++)
                 {
-                    if (!preBoard[i, j].HasValue)
+                    if (!preBoard[x, y].HasValue)
                         throw new Exception("Board initialization ended with error, check your configuration");
-                    Board[i, j] = new Cell(preBoard[i, j].Value, Config.Memory != null ? new Dictionary<string, double>(Config.Memory) : null);
+                    Board[x, y] = new Cell(preBoard[x, y].Value, x, y, Config.Memory != null ? new Dictionary<string, double>(Config.Memory) : null);
                 }
         }
 
@@ -228,11 +228,13 @@ namespace CellarAutomatonLib
                     result[i, j] = Board[i, j].GetCopy();
                     var nb = Neighbors.GetNeighbors(i, j, Board, _random, Config);
                     int? newState = null;
-                    foreach (var kvp in StateMachine[Board[i, j].State])
+                    var keys = StateMachine[Board[i, j].State].Keys;
+                    foreach (var key in keys)
                     {
-                        if (!kvp.Value(nb, result[i, j].Memory, Config.Global, Step, i, j))
+                        var value = StateMachine[Board[i, j].State][key];
+                        if (!value(nb, result[i, j].Memory, Config.Global, Step, i, j))
                             continue;
-                        newState = kvp.Key;
+                        newState = key;
                         break;
                     }
 
