@@ -8,7 +8,9 @@ namespace RoutingPlugin.Commands
     public class HasNoRoutesCommand : IStateChangeCommand
     {
         public string Name => "HasNoRoutes";
-        public bool Execute(INeighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global, int n, int x, int y)
+
+        public bool Execute(INeighbors neighbors, Dictionary<string, double> memory, Dictionary<string, double> global,
+            int n, int x, int y)
         {
             var point = new Point(x, y);
             var packageQueue = GlobalMemory.PackageLists[point];
@@ -19,14 +21,10 @@ namespace RoutingPlugin.Commands
 
             var queueCopy = packageQueue.ToHashSet();
             foreach (var neighbor in points)
-            {
-                foreach (var target in GlobalMemory.PrevRoutingTable[neighbor].Keys)
-                    queueCopy.Remove(target);
-                if (!queueCopy.Any())
-                    return true;
-            }
-
-            return false;
+            foreach (var target in GlobalMemory.PrevRoutingTable[neighbor].Keys)
+                if (queueCopy.Contains(target))
+                    return false;
+            return true;
         }
     }
 }

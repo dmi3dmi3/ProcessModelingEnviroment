@@ -15,19 +15,24 @@ namespace RoutingPlugin.Commands
         {
             var point = new Point(x, y);
             var packageQueue = GlobalMemory.PackageLists[point];
-            var neighborsRoutingTable = neighbors.NeighborsCell
+            var points = neighbors.NeighborsCell
                 .Where(c => c != null)
                 .Select(c => new Point(c.X, c.Y))
-                .ToDictionary(p => p, p => GlobalMemory.PrevRoutingTable[p]);
-            var neighborsTargets = neighborsRoutingTable
-                .SelectMany(pair => pair.Value.Keys)
-                .ToHashSet();
+                .ToList();
 
-            var intersection = packageQueue.Intersect(neighborsTargets).ToHashSet();
-            if (!intersection.Any())
+            var neighborsRoutingTable = points
+                .ToDictionary(p => p, p => GlobalMemory.PrevRoutingTable[p]);
+
+            Point FindPackage()
+            {
+                foreach (var neighbor in points)
+                foreach (var package in packageQueue)
+                    if (neighborsRoutingTable[neighbor].ContainsKey(package))
+                        return package;
                 throw new ApplicationException("Wrong command execution order");
-            
-            var packageToRoute = packageQueue.First(p => intersection.Contains(p));
+            }
+
+            var packageToRoute = FindPackage();
             var routes = neighborsRoutingTable
                 .ToDictionary(pair => pair.Key,
                     pair => pair.Value.TryGetValue(packageToRoute, out var value) ? value : -1)
@@ -45,7 +50,7 @@ namespace RoutingPlugin.Commands
                     next = routes.First(pair => pair.Value == min).Key;
                     break;
             }
-            
+
             GlobalMemory.Routes.Add(new Tuple<Point, Point>(next, packageToRoute));
             packageQueue.Remove(packageToRoute);
             return true;
